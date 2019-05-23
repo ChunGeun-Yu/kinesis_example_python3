@@ -16,6 +16,8 @@ def get_records():
     shard_iterator = client.get_shard_iterator(StreamName='data_stream_test',
                                                         ShardId=my_shard_id,
                                                         ShardIteratorType='LATEST')
+                                                        # LATEST 는 get_records 호출시점부터 들어온 데이터. 즉 이 프로세스 실행시점부터 들어온 데이터만 수신한다는 뜻.
+                                                        # kinesis data stream은 기본적으로 24시간 데이터 보관.
 
     my_shard_iterator = shard_iterator['ShardIterator']
 
@@ -25,6 +27,7 @@ def get_records():
     while 'NextShardIterator' in record_response:
         record_response = client.get_records(ShardIterator=record_response['NextShardIterator'],
                                                     Limit=10)
+        # get_records 매번 호출시마다 NextShardIterator 값이 나오므로, 그걸로 session(?)을 유지해서 놓치는 데이터가 없도록 함.
 
         print('record_response: {}'.format(record_response))
 
